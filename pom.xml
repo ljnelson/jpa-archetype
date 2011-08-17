@@ -111,6 +111,11 @@
       <plugins>
 
 	<plugin>
+	  <artifactId>maven-antrun-plugin</artifactId>
+	  <version>1.6</version>
+	</plugin>
+
+	<plugin>
           <artifactId>maven-assembly-plugin</artifactId>
 	  <version>2.2.1</version>
 	</plugin>
@@ -473,11 +478,6 @@
 	</dependencies>
 	<executions>
 	  <execution>
-	    <id>Statically weave this project's entities for EclipseLink</id>
-	    <phase>process-classes</phase>
-	    <goals>
-	      <goal>java</goal>
-	    </goals>
 	    <configuration>
 	      <arguments>
 		<argument>-persistenceinfo</argument>
@@ -488,6 +488,43 @@
 	      <classpathScope>compile</classpathScope>
 	      <mainClass>org.eclipse.persistence.tools.weaving.jpa.StaticWeave</mainClass>
 	    </configuration>
+	    <goals>
+	      <goal>java</goal>
+	    </goals>
+	    <id>Statically weave this project's entities for EclipseLink</id>
+	    <phase>process-classes</phase>
+	  </execution>
+	</executions>
+      </plugin>
+
+      <plugin>
+	<artifactId>maven-antrun-plugin</artifactId>
+	<dependencies>
+	  <dependency>
+	    <groupId>org.hibernate</groupId>
+	    <artifactId>hibernate-core</artifactId>
+	    <version>${hibernateVersion}</version>
+	  </dependency>
+	</dependencies>
+	<executions>
+	  <execution>
+	    <configuration>
+	      <target name="instrument">
+		<taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
+		  <classpath path="${maven.compile.classpath}"/>
+		</taskdef>
+		<instrument verbose="true">
+		  <fileset dir="${project.build.directory}/hibernate/classes">
+		    <include name="**/*.class"/>
+		  </fileset>
+		</instrument>
+	      </target> 
+	    </configuration>
+	    <goals>
+	      <goal>run</goal>
+	    </goals>
+	    <id>Statically enhance this project's entities for Hibernate</id>
+	    <phase>process-classes</phase>
 	  </execution>
 	</executions>
       </plugin>
