@@ -144,19 +144,6 @@
 
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
-	  <executions>
-	    <execution>
-	      <configuration>
-		<includeGroupIds>${project.groupId}</includeGroupIds>
-		<includes>**/*.class</includes>             
-	      </configuration>
-	      <goals>
-		<goal>unpack-dependencies</goal>
-	      </goals>
-	      <id>Unpack all dependencies so that weaving, instrumentation and enhancement may run on them prior to testing</id>
-	      <phase>generate-test-resources</phase>
-	    </execution>
-	  </executions>
           <version>2.2</version>
         </plugin>
 
@@ -175,70 +162,19 @@
             <escapeString>\</escapeString>
             <useDefaultDelimiters>false</useDefaultDelimiters>
           </configuration>
-	  <executions>
-
-	    <execution>
-	      <configuration>
-		<resources>
-		  <resource>
-		    <filtering>false</filtering>
-		    <directory>${project.build.outputDirectory}</directory>
-		  </resource>
-		</resources>
-		<outputDirectory>${project.build.directory}/eclipselink/classes</outputDirectory>
-		<overwrite>true</overwrite>
-	      </configuration>
-	      <goals>
-		<goal>copy-resources</goal>
-	      </goals>
-	      <id>Copy contents of build.outputDirectory to EclipseLink area</id>
-	      <phase>process-classes</phase>
-	    </execution>
-
-	    <execution>
-	      <configuration>
-		<outputDirectory>${project.build.directory}/eclipselink/test-classes</outputDirectory>
-		<overwrite>true</overwrite>
-		<resources>
-		  <resource>
-		    <directory>${project.build.directory}/dependency</directory>
-		    <filtering>false</filtering>
-		  </resource>
-		</resources>
-	      </configuration>
-	      <goals>
-		<goal>copy-resources</goal>
-	      </goals>
-	      <id>Copy dependencies into EclipseLink test area</id>
-	      <phase>process-test-resources</phase>
-	    </execution>
-
-	    <execution>
-	      <configuration>
-		<outputDirectory>${project.build.directory}/eclipselink/test-classes</outputDirectory>
-		<overwrite>true</overwrite>
-		<resources>
-		  <resource>
-		    <directory>${project.build.directory}/eclipselink/classes</directory>
-		    <filtering>false</filtering>
-		  </resource>
-		  <resource>
-		    <directory>${project.build.testOutputDirectory}</directory>
-		    <filtering>false</filtering>
-		  </resource>
-		</resources>
-	      </configuration>
-	      <goals>
-		<goal>copy-resources</goal>
-	      </goals>
-	      <id>Copy contents of testOutputDirectory and contents of EclipseLink area to EclipseLink test area</id>
-	      <phase>process-test-classes</phase>
-	    </execution>
-
-	  </executions>
           <version>2.5</version> 
         </plugin>
 	
+	<plugin>
+	  <groupId>org.codehaus.mojo</groupId>
+	  <artifactId>exec-maven-plugin</artifactId>	  
+	  <configuration>
+	    <includePluginDependencies>true</includePluginDependencies>
+	    <includeProjectDependencies>true</includeProjectDependencies>
+	  </configuration>
+	  <version>1.2</version>
+	</plugin>
+
 	<plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
@@ -263,9 +199,305 @@
 	    </systemPropertyVariables>
 	    <useFile>false</useFile>
 	  </configuration>
+          <version>2.9</version>
+	</plugin>
+
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+	<artifactId>maven-resources-plugin</artifactId>
+	<executions>
+
+	  <execution>
+	    <configuration>
+	      <resources>
+		<resource>
+		  <filtering>false</filtering>
+		  <directory>${project.build.outputDirectory}</directory>
+		</resource>
+	      </resources>
+	      <outputDirectory>${project.build.directory}/eclipselink/classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy contents of build.outputDirectory to EclipseLink area</id>
+	    <phase>process-classes</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <resources>
+		<resource>
+		  <filtering>false</filtering>
+		  <directory>${project.build.outputDirectory}</directory>
+		</resource>
+	      </resources>
+	      <outputDirectory>${project.build.directory}/hibernate/classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy contents of build.outputDirectory to Hibernate area</id>
+	    <phase>process-classes</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <resources>
+		<resource>
+		  <filtering>false</filtering>
+		  <directory>${project.build.outputDirectory}</directory>
+		</resource>
+	      </resources>
+	      <outputDirectory>${project.build.directory}/openjpa/classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy contents of build.outputDirectory to OpenJPA area</id>
+	    <phase>process-classes</phase>
+	  </execution>
+	  
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/eclipselink/META-INF</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>src/weaving/META-INF</directory>
+		  <filtering>true</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy weaving persistence.xml used to set up static weaving for EclipseLink</id>
+	    <phase>process-classes</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/hibernate/META-INF</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>src/weaving/META-INF</directory>
+		  <filtering>true</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy weaving persistence.xml used to set up static weaving for Hibernate</id>
+	    <phase>process-classes</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/openjpa/META-INF</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>src/weaving/META-INF</directory>
+		  <filtering>true</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy weaving persistence.xml used to set up static weaving for OpenJPA</id>
+	    <phase>process-classes</phase>
+	  </execution>
+
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/eclipselink/test-classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>${project.build.directory}/dependency</directory>
+		  <filtering>false</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy dependencies into EclipseLink test area</id>
+	    <phase>process-test-resources</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/hibernate/test-classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>${project.build.directory}/dependency</directory>
+		  <filtering>false</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy dependencies into Hibernate test area</id>
+	    <phase>process-test-resources</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/openjpa/test-classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>${project.build.directory}/dependency</directory>
+		  <filtering>false</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy dependencies into OpenJPA test area</id>
+	    <phase>process-test-resources</phase>
+	  </execution>
+
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/eclipselink/test-classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>${project.build.directory}/eclipselink/classes</directory>
+		  <filtering>false</filtering>
+		</resource>
+		<resource>
+		  <directory>${project.build.testOutputDirectory}</directory>
+		  <filtering>false</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy contents of testOutputDirectory and contents of EclipseLink area to EclipseLink test area</id>
+	    <phase>process-test-classes</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/hibernate/test-classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>${project.build.directory}/hibernate/classes</directory>
+		  <filtering>false</filtering>
+		</resource>
+		<resource>
+		  <directory>${project.build.testOutputDirectory}</directory>
+		  <filtering>false</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy contents of testOutputDirectory and contents of Hibernate area to Hibernate test area</id>
+	    <phase>process-test-classes</phase>
+	  </execution>
+
+	  <execution>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/openjpa/test-classes</outputDirectory>
+	      <overwrite>true</overwrite>
+	      <resources>
+		<resource>
+		  <directory>${project.build.directory}/openjpa/classes</directory>
+		  <filtering>false</filtering>
+		</resource>
+		<resource>
+		  <directory>${project.build.testOutputDirectory}</directory>
+		  <filtering>false</filtering>
+		</resource>
+	      </resources>
+	    </configuration>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <id>Copy contents of testOutputDirectory and contents of OpenJPA area to OpenJPA test area</id>
+	    <phase>process-test-classes</phase>
+	  </execution>
+
+	</executions>
+      </plugin>
+
+      <plugin>
+	<artifactId>maven-dependency-plugin</artifactId>
+	<executions>
+	  <execution>
+	    <configuration>
+	      <includeGroupIds>${project.groupId}</includeGroupIds>
+	      <includes>**/*.class</includes>             
+	    </configuration>
+	    <goals>
+	      <goal>unpack-dependencies</goal>
+	    </goals>
+	    <id>Unpack all dependencies so that weaving, instrumentation and enhancement may run on them prior to testing</id>
+	    <phase>generate-test-resources</phase>
+	  </execution>
+	</executions>
+      </plugin>
+
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>exec-maven-plugin</artifactId>
+	<dependencies>
+	  <dependency>
+	    <groupId>org.eclipse.persistence</groupId>
+	    <artifactId>org.eclipse.persistence.jpa</artifactId>
+	    <version>${eclipseLinkVersion}</version>
+	  </dependency>
+	</dependencies>
+	<executions>
+	  <execution>
+	    <id>Statically weave this project's entities for EclipseLink</id>
+	    <phase>process-classes</phase>
+	    <goals>
+	      <goal>java</goal>
+	    </goals>
+	    <configuration>
+	      <arguments>
+		<argument>-persistenceinfo</argument>
+		<argument>${project.build.directory}/eclipselink</argument>
+		<argument>${project.build.directory}/eclipselink/classes</argument>
+		<argument>${project.build.directory}/eclipselink/classes</argument> <!-- yes, twice -->
+	      </arguments>
+	      <classpathScope>compile</classpathScope>
+	      <mainClass>org.eclipse.persistence.tools.weaving.jpa.StaticWeave</mainClass>
+	    </configuration>
+	  </execution>
+	</executions>
+      </plugin>
+
+      <plugin>
+	<artifactId>maven-surefire-plugin</artifactId>
 	  <executions>
 	    <execution>
 	      <configuration>
+		<classesDirectory>${project.build.directory}/hibernate/classes</classesDirectory>
 		<classpathDependencyExcludes combine.children="append">
 		  <!-- Remove EclipseLink -->
 		  <classpathDependencyExclude>org.eclipse.persistence:org.eclipse.persistence.antlr</classpathDependencyExclude>
@@ -297,6 +529,7 @@
 
 	    <execution>
 	      <configuration>
+		<classesDirectory>${project.build.directory}/openjpa/classes</classesDirectory>
 		<classpathDependencyExcludes combine.children="append">
 		  <!-- Remove EclipseLink -->
 		  <classpathDependencyExclude>org.eclipse.persistence:org.eclipse.persistence.antlr</classpathDependencyExclude>
@@ -333,6 +566,7 @@
 
 	    <execution>
 	      <configuration>
+		<classesDirectory>${project.build.directory}/eclipselink/classes</classesDirectory>
 		<classpathDependencyExcludes combine.children="append">
 
 		  <!-- Remove Hibernate -->
@@ -372,21 +606,20 @@
 	      <phase>test</phase>
 	    </execution>
 	  </executions>
-          <version>2.9</version>
 	</plugin>
 
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-	<artifactId>maven-dependency-plugin</artifactId>
-      </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+	<directory>${basedir}/src/main/resources</directory>
+	<filtering>true</filtering>
+      </resource>
+    </resources>
 
     <testResources>
       <testResource>
-	<directory>src/test/resources</directory>
+	<directory>${basedir}/src/test/resources</directory>
 	<filtering>true</filtering>
       </testResource>
     </testResources>
