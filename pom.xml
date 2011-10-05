@@ -245,12 +245,36 @@ dependencies into the weaving area of the JPA providers.
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
 
+          <execution>
+            <id>Copy src/main/resources/META-INF/persistence.xml with filtering to ${project.build.outputDirectory}</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <overwrite>true</overwrite>
+              <filters>
+                <filter>${weavingEntityClassnamesPropertiesFile}</filter>
+              </filters>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/resources</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                    <include>META-INF/persistence.xml</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+
           <!--
 
-Right after compilation, we copy all the classes and
-resources into each JPA provider's main area.  We also set
-them up with a persistence.xml since weaving often needs
-one.
+              Right after compilation, we copy all the classes and
+              resources into each JPA provider's main area.  We also
+              set them up with a persistence.xml since weaving often
+              needs one.
 
           -->
 
@@ -670,6 +694,9 @@ one.
       <resource>
         <directory>${basedir}/src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>META-INF/persistence.xml</exclude>
+        </excludes>
       </resource>
     </resources>
 
