@@ -94,12 +94,6 @@
       <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.edugility</groupId>
-      <artifactId>edugility-party-jpa</artifactId>
-      <version>1.19-SNAPSHOT</version>
-    </dependency>
-
   </dependencies>
 
   <build>
@@ -357,6 +351,30 @@ one.
                   <directory>${project.build.directory}/openjpa/classes</directory>
                   <filtering>false</filtering>
                   <targetPath>openjpa/test-classes</targetPath>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>Copy test persistence.xml, with filtering, to ${project.build.testOutputDirectory}/META-INF/persistence.xml</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+              <overwrite>true</overwrite>
+              <filters>
+                <filter>${project.build.directory}/generated-test-sources/jpa-maven-plugin/entityClassnames.properties</filter>
+              </filters>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/test/resources</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                    <include>META-INF/persistence.xml</include>
+                  </includes>
                 </resource>
               </resources>
             </configuration>
@@ -659,6 +677,9 @@ one.
       <testResource>
         <directory>${basedir}/src/test/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>META-INF/persistence.xml</exclude>
+        </excludes>
       </testResource>
     </testResources>
 
@@ -695,6 +716,7 @@ one.
     <testDatabaseSchema>${defaultDatabaseSchema}</testDatabaseSchema>
     <testDatabaseSchemaPrefix>${testDatabaseSchema}.</testDatabaseSchemaPrefix>
     <testDatabaseUser>sa</testDatabaseUser>
+    <testPersistenceUnitName>test</testPersistenceUnitName>
     <weavingEntityClassnamesPropertiesFile>${project.build.directory}/generated-sources/jpa-maven-plugin/entityClassnames.properties</weavingEntityClassnamesPropertiesFile>
     <weavingDependencyGroupIds>${project.groupId}</weavingDependencyGroupIds>
 
