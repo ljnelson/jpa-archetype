@@ -14,7 +14,7 @@
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
-        <version>1.0.0.GA</version>
+        <version>${javaxValidationVersion}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -107,6 +107,12 @@
       <plugins>
 
         <plugin>
+          <groupId>com.edugility</groupId>
+          <artifactId>jpa-maven-plugin</artifactId>
+          <version>0.9.0</version>
+        </plugin>
+
+        <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
           <version>1.6</version>
         </plugin>
@@ -118,12 +124,6 @@
 
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <compilerArgument>-Xlint:all</compilerArgument>
-            <encoding>UTF8</encoding>
-            <source>1.6</source>
-            <target>1.6</target>
-          </configuration>
           <version>2.3.2</version>
         </plugin>
 
@@ -145,12 +145,12 @@
 
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.2</version>
+          <version>2.3</version>
         </plugin>
 
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.3.1</version>
+          <version>2.3.2</version>
         </plugin>
 
         <plugin>
@@ -159,8 +159,6 @@
             <delimiters>
               <delimiter>${*}</delimiter>
             </delimiters>
-            <encoding>UTF8</encoding>
-            <escapeString>\</escapeString>
             <useDefaultDelimiters>false</useDefaultDelimiters>
           </configuration>
           <version>2.5</version>
@@ -188,9 +186,8 @@
               <testDatabaseSchemaPrefix>${testDatabaseSchemaPrefix}</testDatabaseSchemaPrefix>
               <testDatabaseUser>${testDatabaseUser}</testDatabaseUser>
             </systemPropertyVariables>
-            <useFile>false</useFile>
           </configuration>
-          <version>2.9</version>
+          <version>2.10</version>
         </plugin>
 
       </plugins>
@@ -198,6 +195,33 @@
 
     <plugins>
 
+      <plugin>
+        <groupId>com.edugility</groupId>
+        <artifactId>jpa-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>Generate regular entity classnames for filtering</id>
+            <goals>
+              <goal>list-entity-classnames</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <outputFile>${weavingEntityClassnamesPropertiesFile}</outputFile>
+              <URLs>
+                <URL>file:${project.build.outputDirectory}/</URL>
+              </URLs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Generate all entity classnames for filtering</id>
+            <goals>
+              <goal>list-entity-classnames</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+          </execution>
+        </executions>
+      </plugin>
+      
       <!--
 
 After compilation, but before testing, unpack various
@@ -245,6 +269,9 @@ one.
             <configuration>
               <outputDirectory>${project.build.directory}</outputDirectory>
               <overwrite>true</overwrite>
+              <filters>
+                <filter>${weavingEntityClassnamesPropertiesFile}</filter>
+              </filters>
               <resources>
                 <resource>
                   <directory>${project.build.outputDirectory}</directory>
@@ -356,7 +383,7 @@ one.
           <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
+            <version>${javaxValidationVersion}</version>
           </dependency>
           <dependency>
             <groupId>org.hibernate</groupId>
@@ -376,24 +403,22 @@ one.
         </dependencies>
         <executions>
           <execution>
-            <id>Statically weave this project's entities for EclipseLink</id>
+            <id>Weave and enhance regular entities</id>
             <goals>
               <goal>run</goal>
             </goals>
-            <phase>process-test-classes</phase>
+            <phase>process-classes</phase>
             <configuration>
-              <target name="Statically weave and enhance entities">
+              <target name="Weave and enhance regular entities">
                 <taskdef name="weave" classname="org.eclipse.persistence.tools.weaving.jpa.StaticWeaveAntTask"/>
                 <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask"/>
                 <taskdef name="enhance" classname="org.apache.openjpa.ant.PCEnhancerTask"/>
 
                 <weave source="${project.build.directory}/eclipselink/classes" target="${project.build.directory}/eclipselink/classes" persistenceinfo="${project.build.directory}/eclipselink" logLevel="${eclipseLinkLoggingLevel}"/>
-                <weave source="${project.build.directory}/eclipselink/test-classes" target="${project.build.directory}/eclipselink/test-classes" persistenceinfo="${project.build.directory}/eclipselink" logLevel="${eclipseLinkLoggingLevel}"/>
 
                 <instrument verbose="${hibernateInstrumentationVerbose}" extended="${hibernateInstrumentationExtended}">
                   <fileset dir="${project.build.directory}/hibernate">
                     <include name="classes/**/*.class"/>
-                    <include name="test-classes/**/*.class"/>
                     <exclude name="**/*_.class"/>
                   </fileset>
                 </instrument>
@@ -409,6 +434,30 @@ one.
                     <exclude name="**/*_.class"/>
                   </fileset>
                 </enhance>                
+              </target>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>Weave and enhance test entities</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <target name="Weave and enhance test entities">
+                <taskdef name="weave" classname="org.eclipse.persistence.tools.weaving.jpa.StaticWeaveAntTask"/>
+                <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask"/>
+                <taskdef name="enhance" classname="org.apache.openjpa.ant.PCEnhancerTask"/>
+
+                <weave source="${project.build.directory}/eclipselink/test-classes" target="${project.build.directory}/eclipselink/test-classes" persistenceinfo="${project.build.directory}/eclipselink" logLevel="${eclipseLinkLoggingLevel}"/>
+
+                <instrument verbose="${hibernateInstrumentationVerbose}" extended="${hibernateInstrumentationExtended}">
+                  <fileset dir="${project.build.directory}/hibernate">
+                    <include name="test-classes/**/*.class"/>
+                    <exclude name="**/*_.class"/>
+                  </fileset>
+                </instrument>
 
                 <enhance directory="${project.build.directory}/openjpa/test-classes">
                   <config propertiesFile="${project.build.directory}/openjpa/META-INF/persistence.xml" log="${openJPALoggingLevel}"/>
@@ -542,6 +591,47 @@ one.
         </executions>
       </plugin>
 
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>Create jar file containing EclipseLink-woven classes</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <classesDirectory>${project.build.directory}/eclipselink/classes</classesDirectory>
+              <classifier>eclipselink</classifier>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>Create jar file containing Hibernate-instrumented classes</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <classesDirectory>${project.build.directory}/hibernate/classes</classesDirectory>
+              <classifier>hibernate</classifier>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>Create jar file containing OpenJPA-enhanced classes</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <classesDirectory>${project.build.directory}/openjpa/classes</classesDirectory>
+              <classifier>openjpa</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
 
     <resources>
@@ -564,20 +654,26 @@ one.
 
     <!-- Versions -->
     <eclipseLinkVersion>2.3.0</eclipseLinkVersion>
-    <h2Version>1.3.159</h2Version>
-    <hibernateVersion>4.0.0.CR2</hibernateVersion>
+    <h2Version>1.3.160</h2Version>
+    <hibernateVersion>4.0.0.CR4</hibernateVersion>
     <javaxPersistenceVersion>2.0.3</javaxPersistenceVersion>
     <junitVersion>4.8.2</junitVersion>
     <openJPAVersion>2.1.1</openJPAVersion>
+    <javaxValidationVersion>1.0.0.GA</javaxValidationVersion>
 
     <!-- Other -->
     <defaultDatabaseSchema>test</defaultDatabaseSchema>
-    <weavingDependencyGroupIds>${project.groupId}</weavingDependencyGroupIds>
     <eclipseLinkLoggingLevel>INFO</eclipseLinkLoggingLevel>
     <hibernateInstrumentationExtended>false</hibernateInstrumentationExtended>
     <hibernateInstrumentationVerbose>false</hibernateInstrumentationVerbose>
     <loggingConfigFile>${basedir}/logging.properties</loggingConfigFile>
+    <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.resources.escapeString>\</maven.resources.escapeString>
     <openJPALoggingLevel>false</openJPALoggingLevel>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <surefire.useFile>false</surefire.useFile>
     <testDatabaseCatalog>test</testDatabaseCatalog>
     <testDatabaseConnectionURL>jdbc:h2:mem:${testDatabaseCatalog};DB_CLOSE_DELAY=-1</testDatabaseConnectionURL>
     <testDatabaseDriverClass>org.h2.Driver</testDatabaseDriverClass>
@@ -585,6 +681,8 @@ one.
     <testDatabaseSchema>${defaultDatabaseSchema}</testDatabaseSchema>
     <testDatabaseSchemaPrefix>${testDatabaseSchema}.</testDatabaseSchemaPrefix>
     <testDatabaseUser>sa</testDatabaseUser>
+    <weavingEntityClassnamesPropertiesFile>${project.build.directory}/generated-sources/jpa-maven-plugin/entityClassnames.properties</weavingEntityClassnamesPropertiesFile>
+    <weavingDependencyGroupIds>${project.groupId}</weavingDependencyGroupIds>
 
   </properties>
 

@@ -1,7 +1,5 @@
 /* -*- mode: Java; c-basic-offset: 2; indent-tabs-mode: nil -*-
  *
- * $Id$
- *
  * Copyright (c) 2010-2011 Edugility LLC.
  *
  * Permission is hereby granted, free of charge, to any person
@@ -29,7 +27,11 @@
  */
 package com.edugility.jpa;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity(name = "rock")
 @Table(name = "rock")
