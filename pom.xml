@@ -317,7 +317,7 @@ one.
           </execution>
 
           <execution>
-            <id>Copy dependencies into JPA provider test areas</id>
+            <id>Copy dependencies and woven classes into JPA provider test areas</id>
             <goals>
               <goal>copy-resources</goal>
             </goals>
@@ -338,6 +338,23 @@ one.
                 </resource>
                 <resource>
                   <directory>${project.build.directory}/dependency</directory>
+                  <filtering>false</filtering>
+                  <targetPath>openjpa/test-classes</targetPath>
+                </resource>
+
+                <!-- ...then copy JPA provider classes area on top of those -->
+                <resource>
+                  <directory>${project.build.directory}/eclipselink/classes</directory>
+                  <filtering>false</filtering>
+                  <targetPath>eclipselink/test-classes</targetPath>
+                </resource>
+                <resource>
+                  <directory>${project.build.directory}/hibernate/classes</directory>
+                  <filtering>false</filtering>
+                  <targetPath>hibernate/test-classes</targetPath>
+                </resource>
+                <resource>
+                  <directory>${project.build.directory}/openjpa/classes</directory>
                   <filtering>false</filtering>
                   <targetPath>openjpa/test-classes</targetPath>
                 </resource>
@@ -487,7 +504,6 @@ one.
             </goals>
             <phase>test</phase>
             <configuration>
-              <classesDirectory>${project.build.directory}/hibernate/classes</classesDirectory>
               <classpathDependencyExcludes combine.children="append">
                 <!-- Remove EclipseLink -->
                 <classpathDependencyExclude>org.eclipse.persistence:org.eclipse.persistence.antlr</classpathDependencyExclude>
@@ -519,7 +535,6 @@ one.
             </goals>
             <phase>test</phase>
             <configuration>
-              <classesDirectory>${project.build.directory}/openjpa/classes</classesDirectory>
               <classpathDependencyExcludes combine.children="append">
                 <!-- Remove EclipseLink -->
                 <classpathDependencyExclude>org.eclipse.persistence:org.eclipse.persistence.antlr</classpathDependencyExclude>
@@ -555,7 +570,6 @@ one.
             </goals>
             <phase>test</phase>
             <configuration>
-              <classesDirectory>${project.build.directory}/eclipselink/classes</classesDirectory>
               <classpathDependencyExcludes combine.children="append">
 
                 <!-- Remove Hibernate -->
