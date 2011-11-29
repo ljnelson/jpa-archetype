@@ -103,7 +103,7 @@
         <plugin>
           <groupId>com.edugility</groupId>
           <artifactId>jpa-maven-plugin</artifactId>
-          <version>0.9.0</version>
+          <version>1.0</version>
         </plugin>
 
         <plugin>
@@ -716,10 +716,10 @@ dependencies into the weaving area of the JPA providers.
 
     <!-- Versions -->
     <eclipseLinkVersion>2.3.0</eclipseLinkVersion>
-    <h2Version>1.3.160</h2Version>
+    <h2Version>1.3.162</h2Version>
     <hibernateVersion>4.0.0.CR4</hibernateVersion>
     <javaxPersistenceVersion>2.0.3</javaxPersistenceVersion>
-    <junitVersion>4.8.2</junitVersion>
+    <junitVersion>4.10</junitVersion>
     <openJPAVersion>2.1.1</openJPAVersion>
     <javaxValidationVersion>1.0.0.GA</javaxValidationVersion>
 
