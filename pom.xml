@@ -201,6 +201,14 @@
 
     <plugins>
 
+
+      <!--
+
+          Immediately after compilation, produce a list of entity
+          classnames suitable for further Maven filtering.
+
+      -->
+
       <plugin>
         <groupId>com.edugility</groupId>
         <artifactId>jpa-maven-plugin</artifactId>
@@ -228,10 +236,11 @@
         </executions>
       </plugin>
       
+
       <!--
 
-After compilation, but before testing, unpack various
-dependencies into the weaving area of the JPA providers.
+          After compilation, but before testing, unpack various
+          dependencies into the weaving area of the JPA providers.
 
       -->
 
@@ -280,6 +289,7 @@ dependencies into the weaving area of the JPA providers.
               </resources>
             </configuration>
           </execution>
+
 
           <!--
 
