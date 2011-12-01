@@ -1,7 +1,5 @@
 /* -*- mode: Java; c-basic-offset: 2; indent-tabs-mode: nil -*-
  *
- * $Id$
- *
  * Copyright (c) 2010-2011 Edugility LLC.
  *
  * Permission is hereby granted, free of charge, to any person
