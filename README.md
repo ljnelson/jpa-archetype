@@ -25,3 +25,8 @@ dependencies weeded out of its classpath.
 
 Questions and feedback heartily welcomed at `ljnelson` at a big
 enormous supposedly non-evil email provider starting with G.
+
+[1]: http://hibernate.org
+[2]: http://www.eclipse.org/eclipselink/jpa.php
+[3]: http://openjpa.apache.org
+[4]: http://maven.apache.org/plugins/maven-surefire-plugin/
